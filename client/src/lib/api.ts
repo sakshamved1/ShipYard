@@ -35,6 +35,15 @@ export interface ApiErrorResponse {
 }
 
 const getBaseUrl = (): string => {
+  // If running in a live browser and not on localhost, ALWAYS use relative "/api/v1"
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    return "/api/v1";
+  }
+
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
     return envUrl;
