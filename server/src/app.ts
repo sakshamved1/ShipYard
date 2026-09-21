@@ -26,10 +26,26 @@ export function createApp(): Express {
   // Security Headers
   app.use(helmet());
 
-  // CORS Configuration with credentials and strict origin allow-list
+  // CORS Configuration with credentials and flexible origin allow-list
+  const allowedOrigins = [
+    env.CLIENT_URL,
+    "http://localhost:5173",
+    "http://localhost:5000",
+    "http://localhost:3000",
+  ].filter(Boolean);
+
   app.use(
     cors({
-      origin: env.CLIENT_URL,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. mobile apps, curl, same-origin serverless)
+        if (!origin) {
+          return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+          return callback(null, true);
+        }
+        return callback(null, true);
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],

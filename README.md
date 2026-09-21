@@ -70,13 +70,51 @@ The command starts both the server (`http://localhost:5000`) and the Vite client
 
 ---
 
+## 🌐 Deploying to Vercel
+
+ShipYard is pre-configured for full-stack deployment on [Vercel](https://vercel.com) using a single project setup (Vite React SPA + Express Serverless API on the same domain).
+
+### 1. Database (MongoDB Atlas)
+1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Under **Network Access**, allow access from anywhere (`0.0.0.0/0`).
+3. Under **Database Access**, create a user and copy the connection string:
+   ```
+   mongodb+srv://<username>:<password>@cluster.mongodb.net/shipyard?retryWrites=true&w=majority
+   ```
+
+### 2. Deploy with Vercel CLI or GitHub
+- **Via Vercel Dashboard (GitHub)**:
+  1. Push your repository to GitHub.
+  2. Import the project in Vercel.
+  3. Framework Preset: **Vite** (Build Command: `npm run build`, Output Directory: `client/dist`).
+  4. Add the Environment Variables below.
+  5. Click **Deploy**.
+
+- **Via Vercel CLI**:
+  ```bash
+  npm i -g vercel
+  vercel
+  ```
+
+### 3. Environment Variables for Vercel
+Set the following in **Vercel Project Settings → Environment Variables**:
+| Variable | Description | Example |
+|---|---|---|
+| `MONGODB_URI` | MongoDB Atlas connection string | `mongodb+srv://user:pass@cluster.mongodb.net/shipyard` |
+| `JWT_ACCESS_SECRET` | Secret key for access tokens (min 16 chars) | `your-super-secret-jwt-access-key` |
+| `JWT_REFRESH_SECRET` | Secret key for refresh tokens (min 16 chars) | `your-super-secret-jwt-refresh-key` |
+| `NODE_ENV` | Environment mode | `production` |
+| `ADMIN_EMAIL` | Default seeded admin email | `admin@shipyard.dev` |
+| `ADMIN_PASSWORD` | Default seeded admin password | `AdminSecurePassword123!` |
+
+---
+
 ## 📌 Assumptions & Limitations
-- **Email verification** is simulated – the app sends a console log with a verification URL instead of real email delivery.
+- **Email verification** is simulated – verification URLs are provided upon signup or password reset.
 - **Refresh‑token rotation** is implemented; re‑using an old refresh token revokes the whole token family.
 - The markdown renderer on the client sanitises all output (rehype‑sanitize) to prevent XSS.
-- Rate limiting is applied to auth routes only; other endpoints are unrestricted in the local dev environment.
+- Rate limiting is applied to auth routes.
 - The Kanban view is read‑only for non‑admin users; only admins can change a request’s status.
-- The project does **not** include a CI/CD pipeline yet – you’ll need to set up CI manually if required.
 
 ---
 

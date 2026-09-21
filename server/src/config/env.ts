@@ -2,8 +2,11 @@ import dotenv from "dotenv";
 import { logger } from "./logger.js";
 import { z } from "zod";
 
-// Load .env file
+import path from "path";
+
+// Load .env file from root or server directory
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), "server/.env") });
 
 const envSchema = z.object({
   NODE_ENV: z

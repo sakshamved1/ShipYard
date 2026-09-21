@@ -2,21 +2,29 @@ import mongoose from "mongoose";
 import { env } from "./env.js";
 import { logger } from "./logger.js";
 
+let isConnecting = false;
+
 /**
  * Connects to MongoDB via Mongoose and sets up connection lifecycle event handlers.
+ * Optimized for both long-running server and serverless (Vercel) environments.
  */
 export async function connectDB(): Promise<void> {
-  mongoose.connection.on("connected", () => {
-    logger.info(`MongoDB connected successfully [${mongoose.connection.host}]`);
-  });
+  // Reuse existing connection if already connected
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
 
-  mongoose.connection.on("error", (err) => {
-    logger.error(`MongoDB connection error: ${err.message}`, err);
-  });
+  // If already connecting, wait for connection to complete
+  if (mongoose.connection.readyState === 2 || isConnecting) {
+    let attempts = 0;
+    while ((mongoose.connection.readyState === 2 || isConnecting) && attempts < 25) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      attempts++;
+    }
+    if ((mongoose.connection.readyState as number) === 1) return;
+  }
 
-  mongoose.connection.on("disconnected", () => {
-    logger.warn("MongoDB disconnected");
-  });
+  isConnecting = true;
 
   try {
     await mongoose.connect(env.MONGODB_URI, {
@@ -26,8 +34,11 @@ export async function connectDB(): Promise<void> {
     logger.warn(
       `MongoDB connection warning: Could not connect to ${env.MONGODB_URI} (${(error as Error).message}). Ensure MongoDB is running.`
     );
+  } finally {
+    isConnecting = false;
   }
 }
+
 
 /**
  * Closes the MongoDB connection gracefully.
