@@ -34,9 +34,15 @@ export interface ApiErrorResponse {
   };
 }
 
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? "/api/v1" : "http://localhost:5000/api/v1");
+const getBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    return envUrl;
+  }
+  return import.meta.env.PROD ? "/api/v1" : "http://localhost:5000/api/v1";
+};
+
+const BASE_URL = getBaseUrl();
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
