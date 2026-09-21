@@ -86,7 +86,7 @@ ShipYard is pre-configured for full-stack deployment on [Vercel](https://vercel.
 - **Via Vercel Dashboard (GitHub)**:
   1. Push your repository to GitHub.
   2. Import the project in Vercel.
-  3. Framework Preset: **Vite** (Build Command: `npm run build`, Output Directory: `dist`).
+  3. Framework Preset: **Vite** (Build Command: `npm run build`, Output Directory: `client/dist`).
   4. Add the Environment Variables below.
   5. Click **Deploy**.
 
